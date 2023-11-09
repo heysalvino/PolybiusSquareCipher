@@ -1,0 +1,220 @@
+Strings
+=======
+
+Basics
+------
+A C string is a null-terminated array of characters.
+
+When you declare a string, the system allocates an array with enough
+memory to hold its characters, plus one additional byte to hold a
+special terminating null character. The null character marks the
+end of the string.
+
+You can declare a string using double quotes, in the normal style,
+which is equivalent to declaring an array with specified contents:
+
+    char tokyo[6] = "Tokyo";
+    char kyoto[6] = {'K', 'y', 'o', 't', 'o', '\0'};
+    
+Each C character is a single byte. The special character '\0'
+represents the null byte--the byte having a value of 0--which marks
+the end of the string.
+
+Note that the size of the character array is always one more than the
+number of characters, because one extra space is required to hold the
+null terminator.
+
+Note that, in the example above, I could have ommitted the lengths
+of the arrays, because the compiler could infer them from the
+declarations.
+
+    char tokyo[] = "Tokyo";
+    char kyoto[] = {'K', 'y', 'o', 't', 'o', '\0'};
+
+
+Strings and Memory
+------------------
+Recall that a C array is simply a block of memory that is large enough
+to hold a specified number data items. The name of the array is
+associated with the start of the memory block.
+
+              .
+              .
+          |   .   |
+          ---------
+   tokyo: |  'T'  |
+          ---------
+          |  'o'  |
+          ---------
+          |  'k'  |
+          ---------
+          |  'y'  |
+          ---------
+          |  'o'  |
+          ---------
+          | '\0'  |
+          ---------
+   kyoto: |  'K'  |
+          ---------
+          |  'y'  |
+          ---------
+          |  'o'  |
+          ---------
+          |  't'  |
+          ---------
+          |  'o'  |
+          ---------
+          | '\0'  |
+          ---------
+          |   .   |
+              .
+              .
+          
+Because strings are arrays, individual characters can be accessed
+using square brackets:
+
+    char firstChar = tokyo[0];  // 'T'
+    char secondChar = tokyo[1];  // 'o'
+    
+As with numeric arrays, you can think of the array index as
+giving an offset relative to the beginning of the array:
+
+    tokyo[0] --> the char that is 0 char-sized units beyond the
+                beginning of the block associated with the name tokyo
+                
+    tokyo[1] --> the char that is 1 char-sized unit beyond the
+                beginning of the block associated with the name tokyo
+                
+And so forth for other elements of the array.
+
+
+A Few String Functions
+----------------------
+The C standard library provides a set of useful string manipulation
+functions.
+
+To use these, #include <string.h> at the beginning of your program.
+
+The C string comparison function is called strcmp(). IT IS DIFFERENT
+FROM THE STANDARD JAVA equals() METHOD.
+
+strcmp(a, b) returns the DIFFERENCE between the strings a and b.
+
+    - If they are equal, it returns ZERO
+    - If a comes AFTER b, it returns a POSITIVE value
+    - If a comes BEFORE b, it returns a NEGATIVE value
+    
+Ordering is done lexicographically, like in a standard English
+dictionary. Ordering is case-sensitive, and all capital letters 
+COME BEFORE all lowercase letters.
+
+(We'll discuss this point more when we talk about encodings.)
+
+    if (strcmp(tokyo, kyoto) == 0) {
+        printf("The two strings are the same.");
+    } else {
+        printf("The two strings are different.")
+    }
+
+To get the length of a string use strlen(), which returns the
+number of characters, not including the terminating null byte:
+
+    int len = strlen(tokyo);  // 5
+    
+    
+String Input
+------------
+There are a few different functions that can be used to get string
+input from the terminal. Most of them are bad.
+
+The original old-school string input function was gets(). 
+
+    char buf[8];
+
+    printf("Type something: ");
+    gets(buf);
+    printf("You typed: %s\n", buf);
+
+It is so catastrophically unsafe that most compilers will give you a
+warning if you attempt to use it:
+
+    warning: the `gets' function is dangerous and should not be used.
+    
+Well, I like to live dangerously. Let's burn this candle!
+
+    Type something: ffffffffffffffffffffffffffffffffffffffffffffffff
+    You typed: ffffffffffffffffffffffffffffffffffffffffffffffff
+    *** stack smashing detected ***: ./string_input terminated
+    Aborted
+
+What happened?
+
+gets DOES NOT CHECK THAT ITS TARGET BUFFER IS LARGE ENOUGH TO HOLD
+ALL OF ITS INPUT.
+
+Therefore, it's vulnerable to BUFFER OVERFLOWS because C does not
+perform bounds checking on array accesses.
+
+This kind of bug can allow an adversary to insert arbitrary content
+into your program's memory, leading to all sorts of security
+problems.
+
+NEVER USE gets().
+
+The preferred way to read input from the terminal is fgets, which
+allows you to specify the maximum number of bytes to read:
+
+    char buf[8];
+
+    printf("Type something: ");
+    fgets(buf, sizeof(buf), stdin);
+    printf("You typed: %s\n", buf);
+    
+The first argument to fgets is the buffer that will hold the input;
+the second argument is the maximum number of bytes to read; the third
+is the location to read from--stdin is short for the standard
+terminal input.
+
+fgets can also be used with files; more on that when we talk about
+file I/O.
+
+One thing you must keep in mind when using fgets: IT RETURNS THE
+NEWLINE CHARACTER AT THE END OF THE INPUT.
+    
+Another option is scanf(), the formatted input function.
+
+    scanf("%s", buf);
+    
+This is generally not useful for reading arbitrary strings from the
+terminal for two reasons:
+
+    - like gets, the basic version of scanf doesn't check that the
+      target buffer is large enough to hold all of the input
+      
+    - scanf only reads input to the first whitespace character
+    
+The scanf functions are most useful in two cases:
+
+    - reading data types other than strings from the terminal
+    
+    - reading formatted input from files
+    
+    
+Summary and Key Points
+----------------------
+A C string is an array of characters terminated by a null byte.
+
+Use strcmp to compare strings
+    - Remember that it returns the DISTANCE between the strings: a
+      result of 0 means the strings are EQUAL!
+      
+Use strlen to get the number of characters in a string, not including
+the null byte
+
+Use fgets to read input from the terminal
+
+Never use gets, because it doesn't prevent the user from giving a
+string that overflows the input buffer
+
+
+

@@ -1,0 +1,129 @@
+Multidimensional Arrays
+=======================
+
+Declaring and Using
+-------------------
+Just like Java, C allows arrays to have more than 1 dimension. For
+example, to declare a matrix with two rows and three columns:
+
+    int matrix[2][3];
+    
+As with 1-d arrays, you can specify the initial contents of a 
+multidimensional array:
+
+    int matrix[2][3] = {{1, 2, 3},
+                        {4, 5, 6}};
+                        
+The same style of declaration can be extended to more than 2
+dimensions, though this is less common. For example,
+
+    double cube[5][5][5];
+    double hypercube[10][10][10][10];
+    
+    
+Multidimensional Arrays and Memory
+----------------------------------
+When you declare a multidimensional array, the system allocates a
+block of memory large enough to hold the entire array, then stores
+its elements in ROW-MAJOR order.
+
+For example, the declaration
+
+    int matrix[2][3] = {{1, 2, 3},
+                        {4, 5, 6}};
+                        
+will result in a memory allocation like this, with the elements of
+the first row stored first, followed by the second row, etc.
+
+               .
+               .
+           |   .   |
+           --------- <-----
+   matrix: |   1   |      |
+           ---------      |
+           |   2   |      |----- first row of matrix
+           ---------      |
+           |   3   |      |
+           --------- <-----
+           |   4   |
+           ---------
+           |   5   |
+           ---------
+           |   6   |
+           ---------
+           |   .   |
+               .
+               .
+               
+Each item in the array is large enough to hold one int-sized data
+value, which is 4 bytes on most systems.
+
+
+Looping Over Multidimensional Arrays
+------------------------------------
+Here's a common pattern: looping over an entire 2-D array with a
+pair of for loops to print its contents.
+
+    // Assume that NUM_ROWS and NUM_COLS have been #defined at the
+    // top of the program or in a header file
+
+    int matrix[NUM_ROWS][NUM_COLS];
+
+    int row, col;
+    for (row = 0; row < NUM_ROWS; row++) {
+        for (col = 0; col < NUM_COLS; col++) {
+            printf("%d ", matrix[row][col]);
+        }
+        printf("\n");  // newline at the end of each row
+    }
+
+
+Getting the Size of Arrays
+--------------------------
+Recall that C, unlike Java, does not have a convenient size() method
+for finding the number of allocated elements in an array.
+
+In most cases, you'll have a variable of constant that specifies the
+size of each array in your program.
+
+There is, however, one technique you can sometimes use to find the
+number of allocated elements.
+
+There is an operator called sizeof that returns the NUMBER OF BYTES
+allocated to a data type or variable.
+
+If you use sizeof on a statically-allocated array, it returns the
+TOTAL NUMBER OF BYTES allocated to the array.
+
+    int a[5];
+    int totalBytes = sizeof(a);  // returns 5 * sizeof(int)
+      
+To get the number of elements, divide by the size of the data type.
+
+    int size = sizeof(a) / sizeof(int);  // evaluates to 5
+
+Note that this only works for STATICALLY-ALLOCATED arrays, that is,
+arrays where the size is known at compile time. It doesn't work
+for dynamically-allocated arrays accessed through pointers.
+
+If you use sizeof with a pointer, it returns the SIZE OF THE POINTER
+TYPE:
+
+    int *a = malloc(5 * sizeof(int));
+    int totalBytes = sizeof(a);  // returns sizeof(int *)
+    
+
+Summary and Key Points
+----------------------
+Multidimensional arrays in C are declared and used like their Java
+counterparts.
+
+When you declare a multidimensional array, its elements are stored
+in a block of memory in row-major order.
+
+Use nested for loops to iterate over the complete contents of a
+multidimensional array.
+
+You can use sizeof to get the total number of bytes in a statically-
+allocated array. Dividing by the size of the underlying data type
+will recover the number of allocated elements in the array.
